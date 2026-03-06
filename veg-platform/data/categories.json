@@ -1,0 +1,50 @@
+[
+    {
+        "id": "cat-1",
+        "name": "Leafy Greens",
+        "slug": "leafy-greens",
+        "icon": "🥬",
+        "color": "#2d6a4f",
+        "productCount": 5
+    },
+    {
+        "id": "cat-2",
+        "name": "Root Vegetables",
+        "slug": "root-vegetables",
+        "icon": "🥕",
+        "color": "#e76f51",
+        "productCount": 4
+    },
+    {
+        "id": "cat-3",
+        "name": "Gourds & Squash",
+        "slug": "gourds-squash",
+        "icon": "🎃",
+        "color": "#f4a261",
+        "productCount": 3
+    },
+    {
+        "id": "cat-4",
+        "name": "Tomatoes & Peppers",
+        "slug": "tomatoes-peppers",
+        "icon": "🍅",
+        "color": "#e63946",
+        "productCount": 4
+    },
+    {
+        "id": "cat-5",
+        "name": "Herbs & Seasonings",
+        "slug": "herbs-seasonings",
+        "icon": "🌿",
+        "color": "#588157",
+        "productCount": 3
+    },
+    {
+        "id": "cat-6",
+        "name": "Exotic Vegetables",
+        "slug": "exotic-vegetables",
+        "icon": "🥦",
+        "color": "#6a994e",
+        "productCount": 3
+    }
+]
