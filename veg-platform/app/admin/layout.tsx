@@ -3,7 +3,8 @@
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { selectAdminAuth, selectAdminUsername, adminLogout } from '@/store/slices/adminAuthSlice';
 import {
     LayoutDashboard,
     Package,
@@ -15,7 +16,9 @@ import {
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, username, logout } = useAuth();
+    const dispatch = useAppDispatch();
+    const isAuthenticated = useAppSelector(selectAdminAuth);
+    const username = useAppSelector(selectAdminUsername);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -177,7 +180,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <div style={{ fontSize: '0.72rem', opacity: 0.5 }}>Administrator</div>
                     </div>
                     <button
-                        onClick={() => { logout(); router.push('/admin/login'); }}
+                        onClick={() => { dispatch(adminLogout()); router.push('/admin/login'); }}
                         style={{
                             padding: '8px',
                             background: 'rgba(255,255,255,0.08)',

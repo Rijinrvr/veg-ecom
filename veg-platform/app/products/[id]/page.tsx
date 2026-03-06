@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
 import { Product } from '@/types';
-import { useCart } from '@/context/CartContext';
+import { useAppDispatch } from '@/store/hooks';
+import { addToCart } from '@/store/slices/cartSlice';
 import { Star, ShoppingCart, Minus, Plus, ArrowLeft, Truck, Shield, RefreshCw, Leaf } from 'lucide-react';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +16,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
     const [addedToCart, setAddedToCart] = useState(false);
-    const { addToCart } = useCart();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         fetchProduct();
@@ -37,7 +38,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
     const handleAddToCart = () => {
         if (product) {
-            addToCart(product, quantity);
+            for (let i = 0; i < quantity; i++) {
+                dispatch(addToCart(product));
+            }
             setAddedToCart(true);
             setTimeout(() => setAddedToCart(false), 2000);
         }

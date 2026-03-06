@@ -6,7 +6,8 @@ import Footer from '@/components/store/Footer';
 import HeroSection from '@/components/store/HeroSection';
 import ProductCard from '@/components/store/ProductCard';
 import { Product, Category } from '@/types';
-import { Search, SlidersHorizontal, ChevronRight, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronRight, Sparkles, Star, Quote } from 'lucide-react';
+import Image from 'next/image';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -377,6 +378,201 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section style={{ padding: '80px 0', background: 'linear-gradient(135deg, #f0fdf4 0%, #fefce8 100%)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary)',
+              textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px',
+            }}>
+              <Sparkles size={16} /> Customer Reviews
+            </span>
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary-dark)', marginBottom: '8px' }}>
+              What Our Customers Say
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1rem', maxWidth: '500px', margin: '0 auto' }}>
+              Trusted by 10,000+ happy families across India
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+          }}>
+            {[
+              {
+                name: 'Priya Sharma',
+                location: 'Mumbai, Maharashtra',
+                image: '/images/testimonial-1.png',
+                rating: 5,
+                review: 'The quality of vegetables is exceptional! I have been ordering from VegFresh for 6 months now. Everything is always fresh and delivered on time. Their organic spinach is the best I have ever tasted!',
+                date: '2 weeks ago',
+                verified: true,
+              },
+              {
+                name: 'Rajesh Kumar',
+                location: 'Kochi, Kerala',
+                image: '/images/testimonial-2.png',
+                rating: 5,
+                review: 'Amazing service and fresh produce every single time. The delivery is always on time and the vegetables stay fresh for days. Much better than what I get at the local market. Highly recommended!',
+                date: '1 week ago',
+                verified: true,
+              },
+              {
+                name: 'Arjun Nair',
+                location: 'Bangalore, Karnataka',
+                image: '/images/testimonial-3.png',
+                rating: 4,
+                review: 'Great variety and competitive prices. The organic selection is impressive. Love the real-time order tracking feature — I can see exactly when my vegetables will arrive. Five stars for convenience!',
+                date: '3 days ago',
+                verified: true,
+              },
+              {
+                name: 'Deepa Menon',
+                location: 'Trivandrum, Kerala',
+                image: '/images/testimonial-4.png',
+                rating: 5,
+                review: 'Finally found a reliable source for fresh organic vegetables! The quality is consistently great and the prices are very reasonable. My family loves the farm-fresh taste. Thank you VegFresh!',
+                date: '5 days ago',
+                verified: true,
+              },
+            ].map((testimonial, i) => (
+              <div
+                key={i}
+                style={{
+                  background: 'white',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '28px',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  position: 'relative',
+                  opacity: 0,
+                  animation: `fadeInUp 0.5s ease-out ${i * 0.1}s forwards`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-6px)';
+                  e.currentTarget.style.boxShadow = '0 12px 32px rgba(45,106,79,0.12)';
+                  e.currentTarget.style.borderColor = 'var(--primary-light)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                }}
+              >
+                {/* Quote icon */}
+                <div style={{
+                  position: 'absolute', top: '20px', right: '20px',
+                  color: 'var(--primary-50)', opacity: 0.8,
+                }}>
+                  <Quote size={32} fill="var(--primary-50)" />
+                </div>
+
+                {/* Stars */}
+                <div style={{ display: 'flex', gap: '3px', marginBottom: '16px' }}>
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star
+                      key={j}
+                      size={18}
+                      fill={j < testimonial.rating ? '#f59e0b' : '#e5e7eb'}
+                      color={j < testimonial.rating ? '#f59e0b' : '#e5e7eb'}
+                    />
+                  ))}
+                </div>
+
+                {/* Review text */}
+                <p style={{
+                  fontSize: '0.92rem', lineHeight: 1.75,
+                  color: 'var(--text-light)', marginBottom: '20px',
+                  fontStyle: 'italic',
+                }}>
+                  &ldquo;{testimonial.review}&rdquo;
+                </p>
+
+                {/* User info */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  paddingTop: '16px', borderTop: '1px solid var(--border)',
+                }}>
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    overflow: 'hidden', border: '2px solid var(--primary-light)',
+                    flexShrink: 0,
+                  }}>
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      width={48}
+                      height={48}
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>
+                      {testimonial.name}
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      {testimonial.location}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    {testimonial.verified && (
+                      <span style={{
+                        fontSize: '0.7rem', fontWeight: 600,
+                        color: 'var(--success)', background: '#dcfce7',
+                        padding: '3px 8px', borderRadius: 'var(--radius-full)',
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      }}>
+                        ✓ Verified
+                      </span>
+                    )}
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      {testimonial.date}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Overall rating summary */}
+          <div style={{
+            marginTop: '48px', textAlign: 'center',
+            padding: '28px', background: 'white',
+            borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
+            maxWidth: '500px', margin: '48px auto 0',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary-dark)' }}>4.8</span>
+              <div>
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={20} fill="#f59e0b" color="#f59e0b" />
+                  ))}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>Based on 2,500+ reviews</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', marginTop: '16px' }}>
+              {[
+                { label: 'Happy Customers', value: '10,000+' },
+                { label: 'Orders Delivered', value: '50,000+' },
+                { label: 'Cities Served', value: '25+' },
+              ].map((stat, i) => (
+                <div key={i}>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--primary)' }}>{stat.value}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

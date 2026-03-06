@@ -6,5 +6,21 @@
     "phone": "9061788964",
     "password": "$2b$10$v7qkvTlv/YOZHQ/zkqGnj.J5/Jdumk9GsvYqiByu6Z1hsNqbtIkCS",
     "createdAt": "2026-03-06T06:08:30.389Z"
+  },
+  {
+    "id": "user-c6c99df1",
+    "name": "Rijin V Reji",
+    "email": "rijin@gmail.com",
+    "phone": "9061788964",
+    "password": "$2b$10$r87iLyFpYTnivaT2IwRNQejY4y5cK6H/ieWc3yOk62pAMOpxxQkV6",
+    "createdAt": "2026-03-06T06:41:33.547Z"
+  },
+  {
+    "id": "user-0016b084",
+    "name": "Akash ",
+    "email": "akash@gmail.com",
+    "phone": "9061788964",
+    "password": "$2b$10$cRJnbeUKw2/LahfiwDxv1.h.sFPbtev3IeQUgU1BZIk3gal75PG5C",
+    "createdAt": "2026-03-06T07:09:33.162Z"
   }
 ]

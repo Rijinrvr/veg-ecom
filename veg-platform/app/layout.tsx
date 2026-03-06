@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { CartProvider } from '@/context/CartContext';
-import { AuthProvider } from '@/context/AuthContext';
-import { UserProvider } from '@/context/UserContext';
+import { StoreProvider } from '@/store/provider';
 
 export const metadata: Metadata = {
   title: 'VegFresh - Farm Fresh Vegetables Delivered Daily',
@@ -23,15 +21,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <UserProvider>
-          <AuthProvider>
-            <CartProvider>
-              {children}
-            </CartProvider>
-          </AuthProvider>
-        </UserProvider>
+        <StoreProvider>
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );
 }
-

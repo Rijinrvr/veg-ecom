@@ -5,11 +5,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
-import { useCart } from '@/context/CartContext';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { selectCartItems, selectItemCount, selectSubtotal, selectDeliveryFee, selectTotal, updateQuantity, removeFromCart } from '@/store/slices/cartSlice';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ArrowRight, Truck } from 'lucide-react';
 
 export default function CartPage() {
-    const { items, updateQuantity, removeFromCart, getSubtotal, getDeliveryFee, getTotal, getItemCount } = useCart();
+    const dispatch = useAppDispatch();
+    const items = useAppSelector(selectCartItems);
+    const itemCount = useAppSelector(selectItemCount);
+    const subtotal = useAppSelector(selectSubtotal);
+    const deliveryFee = useAppSelector(selectDeliveryFee);
+    const total = useAppSelector(selectTotal);
 
     if (items.length === 0) {
         return (
@@ -82,7 +88,7 @@ export default function CartPage() {
                             color: 'var(--text-muted)',
                             marginLeft: '12px',
                         }}>
-                            ({getItemCount()} items)
+                            ({itemCount} items)
                         </span>
                     </h1>
                 </div>
@@ -156,7 +162,7 @@ export default function CartPage() {
                                     overflow: 'hidden',
                                 }}>
                                     <button
-                                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                        onClick={() => dispatch(updateQuantity({ productId: item.product.id, quantity: item.quantity - 1 }))}
                                         style={{
                                             padding: '8px 10px',
                                             background: 'white',
@@ -178,7 +184,7 @@ export default function CartPage() {
                                         {item.quantity}
                                     </span>
                                     <button
-                                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                        onClick={() => dispatch(updateQuantity({ productId: item.product.id, quantity: item.quantity + 1 }))}
                                         style={{
                                             padding: '8px 10px',
                                             background: 'white',
@@ -205,7 +211,7 @@ export default function CartPage() {
 
                                 {/* Remove */}
                                 <button
-                                    onClick={() => removeFromCart(item.product.id)}
+                                    onClick={() => dispatch(removeFromCart(item.product.id))}
                                     style={{
                                         padding: '8px',
                                         background: 'none',
@@ -246,16 +252,16 @@ export default function CartPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                                <span style={{ color: 'var(--text-light)' }}>Subtotal ({getItemCount()} items)</span>
-                                <span style={{ fontWeight: 600 }}>₹{getSubtotal()}</span>
+                                <span style={{ color: 'var(--text-light)' }}>Subtotal ({itemCount} items)</span>
+                                <span style={{ fontWeight: 600 }}>₹{subtotal}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                                 <span style={{ color: 'var(--text-light)' }}>Delivery Fee</span>
-                                <span style={{ fontWeight: 600, color: getDeliveryFee() === 0 ? 'var(--success)' : 'inherit' }}>
-                                    {getDeliveryFee() === 0 ? 'FREE' : `₹${getDeliveryFee()}`}
+                                <span style={{ fontWeight: 600, color: deliveryFee === 0 ? 'var(--success)' : 'inherit' }}>
+                                    {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
                                 </span>
                             </div>
-                            {getDeliveryFee() > 0 && (
+                            {deliveryFee > 0 && (
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -267,7 +273,7 @@ export default function CartPage() {
                                     color: '#92400e',
                                 }}>
                                     <Truck size={14} />
-                                    Add ₹{500 - getSubtotal()} more for free delivery
+                                    Add ₹{500 - subtotal} more for free delivery
                                 </div>
                             )}
                         </div>
@@ -279,7 +285,7 @@ export default function CartPage() {
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
                                 <span style={{ fontWeight: 700, color: 'var(--text)' }}>Total</span>
-                                <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.3rem' }}>₹{getTotal()}</span>
+                                <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.3rem' }}>₹{total}</span>
                             </div>
                         </div>
 

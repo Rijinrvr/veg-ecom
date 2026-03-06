@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
-import { useUser } from '@/context/UserContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectUser, selectIsLoggedIn } from '@/store/slices/userSlice';
 import { Order } from '@/types';
 import { Package, Clock, ChevronDown, ChevronUp, MapPin, Truck, ShoppingBag } from 'lucide-react';
 
@@ -18,14 +20,15 @@ const statusConfig: Record<string, { bg: string; color: string; icon: string; la
 };
 
 export default function OrdersPage() {
-  const { user, isLoggedIn } = useUser();
+  const user = useAppSelector(selectUser);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (userId: string) => {
     try {
-      const res = await fetch('/api/orders');
+      const res = await fetch(`/api/orders/user?userId=${userId}`);
       const data = await res.json();
       const sorted = data.sort(
         (a: Order, b: Order) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -39,9 +42,12 @@ export default function OrdersPage() {
   };
 
   useEffect(() => {
-    fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (isLoggedIn && user?.id) {
+      fetchOrders(user.id);
+    } else {
+      setLoading(false);
+    }
+  }, [isLoggedIn, user]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -99,7 +105,18 @@ export default function OrdersPage() {
           </div>
         )}
 
-        {loading ? (
+        {!isLoggedIn ? (
+          <div style={{ textAlign: 'center', padding: '80px 20px' }} className="animate-fadeInUp">
+            <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🔒</div>
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>
+              Sign in to view your orders
+            </h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+              Please sign in to see your order history and track deliveries.
+            </p>
+            <Link href="/login" className="btn-primary">Sign In</Link>
+          </div>
+        ) : loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="skeleton" style={{ height: '140px', borderRadius: 'var(--radius-lg)' }} />
@@ -181,22 +198,50 @@ export default function OrdersPage() {
                       </div>
                     </div>
 
-                    {/* Items preview */}
+                    {/* Product items with images */}
                     <div style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      marginBottom: '16px', flexWrap: 'wrap',
+                      display: 'flex', gap: '12px',
+                      marginBottom: '16px', overflowX: 'auto',
+                      paddingBottom: '4px',
                     }}>
                       {order.items.map((item, i) => (
-                        <span key={i} style={{
-                          padding: '4px 10px',
-                          background: 'var(--primary-50)',
-                          borderRadius: 'var(--radius-full)',
-                          fontSize: '0.78rem',
-                          color: 'var(--primary-dark)',
-                          fontWeight: 500,
+                        <div key={i} style={{
+                          display: 'flex', alignItems: 'center', gap: '10px',
+                          padding: '10px 14px', background: 'var(--primary-50)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border)',
+                          minWidth: 'fit-content', flexShrink: 0,
                         }}>
-                          {item.product.name} × {item.quantity}
-                        </span>
+                          <div style={{
+                            width: '44px', height: '44px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: 'white',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            overflow: 'hidden', flexShrink: 0,
+                            border: '1px solid var(--border)',
+                          }}>
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              width={34}
+                              height={34}
+                              style={{ objectFit: 'contain' }}
+                            />
+                          </div>
+                          <div>
+                            <div style={{
+                              fontSize: '0.85rem', fontWeight: 600,
+                              color: 'var(--text)', lineHeight: 1.3,
+                            }}>
+                              {item.product.name}
+                            </div>
+                            <div style={{
+                              fontSize: '0.75rem', color: 'var(--text-muted)',
+                            }}>
+                              Qty: {item.quantity} • ₹{item.product.price * item.quantity}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
 

@@ -106,7 +106,11 @@ export function updateOrder(id: string, updates: Partial<Order>): Order | null {
 
 export function getOrdersByUserId(userId: string): Order[] {
     const orders = getOrders();
-    return orders.filter(o => o.userId === userId);
+    const user = getUserById(userId);
+    return orders.filter(o => 
+        o.userId === userId || 
+        (user && o.customerEmail?.toLowerCase() === user.email?.toLowerCase())
+    );
 }
 
 // Users

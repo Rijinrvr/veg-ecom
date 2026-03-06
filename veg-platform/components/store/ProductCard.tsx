@@ -4,7 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { ShoppingCart, Star, Plus } from 'lucide-react';
 import { Product } from '@/types';
-import { useCart } from '@/context/CartContext';
+import { useAppDispatch } from '@/store/hooks';
+import { addToCart } from '@/store/slices/cartSlice';
 import Link from 'next/link';
 
 interface ProductCardProps {
@@ -13,7 +14,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
-    const { addToCart } = useCart();
+    const dispatch = useAppDispatch();
     const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
     return (
@@ -177,7 +178,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     <button
                         onClick={(e) => {
                             e.preventDefault();
-                            addToCart(product);
+                            dispatch(addToCart(product));
                         }}
                         style={{
                             display: 'flex',

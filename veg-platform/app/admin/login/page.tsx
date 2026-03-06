@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAppDispatch } from '@/store/hooks';
+import { adminLoginSuccess } from '@/store/slices/adminAuthSlice';
 import { Leaf, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -11,7 +12,7 @@ export default function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const dispatch = useAppDispatch();
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -20,11 +21,17 @@ export default function AdminLoginPage() {
         setLoading(true);
 
         try {
-            const success = await login(username, password);
-            if (success) {
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                dispatch(adminLoginSuccess({ token: data.token, username }));
                 router.push('/admin');
             } else {
-                setError('Invalid username or password');
+                setError(data.error || 'Invalid username or password');
             }
         } catch {
             setError('Login failed. Please try again.');
