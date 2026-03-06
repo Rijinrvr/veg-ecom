@@ -2,13 +2,16 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Search, Menu, X, Leaf, User } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Leaf, User, LogOut, Package, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useUser } from '@/context/UserContext';
 
 export default function Navbar() {
     const { getItemCount } = useCart();
+    const { user, isLoggedIn, logout } = useUser();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const itemCount = getItemCount();
 
     const handleSearch = (e: React.FormEvent) => {
@@ -131,30 +134,139 @@ export default function Navbar() {
                     gap: '8px',
                     flexShrink: 0,
                 }}>
-                    <Link href="/admin/login" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 14px',
-                        borderRadius: 'var(--radius-full)',
-                        color: 'var(--text-light)',
-                        textDecoration: 'none',
-                        fontSize: '0.85rem',
-                        fontWeight: 500,
-                        transition: 'all 0.2s ease',
-                        border: '1px solid transparent',
-                    }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'var(--primary-50)';
-                            e.currentTarget.style.color = 'var(--primary)';
+                    {/* User auth section */}
+                    {isLoggedIn ? (
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '8px 14px',
+                                    borderRadius: 'var(--radius-full)',
+                                    background: 'var(--primary-50)',
+                                    color: 'var(--primary)',
+                                    border: '1px solid var(--primary-200)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600,
+                                    transition: 'all 0.2s ease',
+                                }}
+                            >
+                                <div style={{
+                                    width: '28px', height: '28px', borderRadius: '50%',
+                                    background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: 'white', fontSize: '0.7rem', fontWeight: 700,
+                                }}>
+                                    {user?.name?.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="hide-mobile">{user?.name?.split(' ')[0]}</span>
+                                <ChevronDown size={14} className="hide-mobile" />
+                            </button>
+
+                            {/* Dropdown menu */}
+                            {showUserMenu && (
+                                <>
+                                    <div
+                                        onClick={() => setShowUserMenu(false)}
+                                        style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                                    />
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 'calc(100% + 8px)',
+                                        right: 0,
+                                        background: 'white',
+                                        borderRadius: 'var(--radius-md)',
+                                        boxShadow: 'var(--shadow-xl)',
+                                        border: '1px solid var(--border)',
+                                        minWidth: '200px',
+                                        zIndex: 100,
+                                        animation: 'fadeInUp 0.2s ease-out',
+                                        overflow: 'hidden',
+                                    }}>
+                                        <div style={{
+                                            padding: '14px 16px',
+                                            borderBottom: '1px solid var(--border)',
+                                        }}>
+                                            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.name}</div>
+                                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{user?.email}</div>
+                                        </div>
+                                        <Link
+                                            href="/orders"
+                                            onClick={() => setShowUserMenu(false)}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '10px',
+                                                padding: '12px 16px', textDecoration: 'none',
+                                                color: 'var(--text)', fontSize: '0.88rem',
+                                                transition: 'background 0.15s',
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-50)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                        >
+                                            <Package size={16} /> My Orders
+                                        </Link>
+                                        <Link
+                                            href="/admin/login"
+                                            onClick={() => setShowUserMenu(false)}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '10px',
+                                                padding: '12px 16px', textDecoration: 'none',
+                                                color: 'var(--text)', fontSize: '0.88rem',
+                                                transition: 'background 0.15s',
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-50)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                        >
+                                            <User size={16} /> Admin Panel
+                                        </Link>
+                                        <button
+                                            onClick={() => { logout(); setShowUserMenu(false); }}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '10px',
+                                                padding: '12px 16px', width: '100%',
+                                                background: 'none', border: 'none',
+                                                borderTop: '1px solid var(--border)',
+                                                cursor: 'pointer', color: 'var(--danger)',
+                                                fontSize: '0.88rem', textAlign: 'left',
+                                                transition: 'background 0.15s',
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                        >
+                                            <LogOut size={16} /> Sign Out
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <Link href="/login" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 14px',
+                            borderRadius: 'var(--radius-full)',
+                            color: 'var(--text-light)',
+                            textDecoration: 'none',
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            transition: 'all 0.2s ease',
+                            border: '1px solid transparent',
                         }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = 'var(--text-light)';
-                        }}>
-                        <User size={18} />
-                        <span className="hide-mobile">Admin</span>
-                    </Link>
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'var(--primary-50)';
+                                e.currentTarget.style.color = 'var(--primary)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--text-light)';
+                            }}>
+                            <User size={18} />
+                            <span className="hide-mobile">Sign In</span>
+                        </Link>
+                    )}
 
                     <Link href="/cart" style={{
                         position: 'relative',

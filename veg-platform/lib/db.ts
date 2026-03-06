@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Product, Category, Order } from '@/types';
+import { Product, Category, Order, User } from '@/types';
 
 const dataDir = path.join(process.cwd(), 'data');
 
@@ -103,3 +103,31 @@ export function updateOrder(id: string, updates: Partial<Order>): Order | null {
     writeJSON('orders.json', orders);
     return orders[index];
 }
+
+export function getOrdersByUserId(userId: string): Order[] {
+    const orders = getOrders();
+    return orders.filter(o => o.userId === userId);
+}
+
+// Users
+export function getUsers(): User[] {
+    return readJSON<User>('users.json');
+}
+
+export function getUserById(id: string): User | undefined {
+    const users = getUsers();
+    return users.find(u => u.id === id);
+}
+
+export function getUserByEmail(email: string): User | undefined {
+    const users = getUsers();
+    return users.find(u => u.email === email);
+}
+
+export function createUser(user: User): User {
+    const users = getUsers();
+    users.push(user);
+    writeJSON('users.json', users);
+    return user;
+}
+

@@ -31,8 +31,18 @@ export interface CartItem {
     quantity: number;
 }
 
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    createdAt: string;
+}
+
 export interface Order {
     id: string;
+    userId?: string;
     items: CartItem[];
     total: number;
     subtotal: number;
@@ -54,3 +64,4 @@ export interface AdminUser {
     username: string;
     password: string;
 }
+

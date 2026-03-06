@@ -5,11 +5,13 @@ import Link from 'next/link';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
 import { useCart } from '@/context/CartContext';
-import { ArrowLeft, CreditCard, CheckCircle, Lock, MapPin } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
+import { ArrowLeft, CreditCard, CheckCircle, Lock, MapPin, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
     const { items, getSubtotal, getDeliveryFee, getTotal, clearCart, getItemCount } = useCart();
+    const { user, isLoggedIn } = useUser();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
@@ -72,6 +74,7 @@ export default function CheckoutPage() {
                         subtotal: getSubtotal(),
                         deliveryFee: getDeliveryFee(),
                         ...form,
+                        userId: user?.id || undefined,
                         paymentId,
                         paymentStatus: 'completed',
                     }),
@@ -138,7 +141,10 @@ export default function CheckoutPage() {
                         Order ID: <strong style={{ color: 'var(--primary)' }}>{orderId}</strong>
                     </p>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <Link href="/orders" className="btn-primary">View Orders</Link>
+                        <Link href={`/track/${orderId}`} className="btn-accent" style={{ gap: '8px' }}>
+                            <Truck size={18} /> Track My Order
+                        </Link>
+                        <Link href="/orders" className="btn-primary">View All Orders</Link>
                         <Link href="/" className="btn-secondary">Continue Shopping</Link>
                     </div>
                 </div>
