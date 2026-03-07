@@ -7,7 +7,7 @@ import Footer from '@/components/store/Footer';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectCartItems, selectSubtotal, selectDeliveryFee, selectTotal, selectItemCount, clearCart } from '@/store/slices/cartSlice';
 import { selectIsLoggedIn, selectUser, setRedirectAfterLogin } from '@/store/slices/userSlice';
-import { ArrowLeft, CreditCard, CheckCircle, Lock, MapPin, Truck, LogIn } from 'lucide-react';
+import { ArrowLeft, CreditCard, CheckCircle, Lock, MapPin, Truck, LogIn, Gift, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 
@@ -47,6 +47,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [orderId, setOrderId] = useState('');
+    const [rewardEarned, setRewardEarned] = useState(false);
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [form, setForm] = useState({
         customerName: '',
@@ -57,6 +58,25 @@ export default function CheckoutPage() {
         pincode: '',
     });
 
+    // Coupon logic
+    const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+    const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
+
+    const fetchCoupons = async () => {
+        if (!user) return;
+        try {
+            const res = await fetch(`/api/users/${user.id}/coupons`);
+            if (res.ok) {
+                const data = await res.json();
+                // Only show scratched and unused coupons
+                setAvailableCoupons(data.filter((c: any) => c.isScratched && !c.isUsed));
+            }
+        } catch (error) {
+            console.error('Failed to fetch coupons', error);
+        }
+    };
+
     useEffect(() => {
         if (isLoggedIn && user) {
             setForm(prev => ({
@@ -65,8 +85,27 @@ export default function CheckoutPage() {
                 customerEmail: prev.customerEmail || user.email || '',
                 customerPhone: prev.customerPhone || user.phone || '',
             }));
+            fetchCoupons();
         }
     }, [isLoggedIn, user]);
+
+    useEffect(() => {
+        if (items.length === 0 && !orderPlaced) {
+            router.push('/cart');
+        }
+    }, [items.length, orderPlaced, router]);
+
+    const handleApplyCoupon = (coupon: any) => {
+        if (selectedCouponId === coupon.id) {
+            setSelectedCouponId(null);
+            setDiscountAmount(0);
+        } else {
+            setSelectedCouponId(coupon.id);
+            setDiscountAmount(coupon.value);
+        }
+    };
+
+    const finalTotal = Math.max(0, total - discountAmount);
 
     const validateField = async (field: string, value: string) => {
         try {
@@ -128,7 +167,7 @@ export default function CheckoutPage() {
             const paymentRes = await fetch('/api/payment/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: total, receipt: `order_${Date.now()}` }),
+                body: JSON.stringify({ amount: finalTotal, receipt: `order_${Date.now()}` }),
             });
             const paymentOrder = await paymentRes.json();
             const paymentId = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
@@ -150,14 +189,19 @@ export default function CheckoutPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         items: items.map(item => ({ product: item.product, quantity: item.quantity })),
-                        total, subtotal, deliveryFee,
+                        total: finalTotal, 
+                        subtotal, 
+                        discount: discountAmount,
+                        deliveryFee,
                         ...form,
                         userId: user?.id || undefined,
+                        selectedCouponId,
                         paymentId, paymentStatus: 'completed',
                     }),
                 });
                 const order = await orderRes.json();
                 setOrderId(order.id);
+                setRewardEarned(order.rewardEarned);
                 setOrderPlaced(true);
                 dispatch(clearCart());
             }
@@ -202,6 +246,31 @@ export default function CheckoutPage() {
                     <p style={{ marginBottom: '32px', fontSize: '0.9rem' }}>
                         Order ID: <strong style={{ color: 'var(--primary)' }}>{orderId}</strong>
                     </p>
+
+                    {rewardEarned && (
+                        <div style={{
+                            background: 'var(--primary-50)', border: '2px dashed var(--primary)',
+                            padding: '24px', borderRadius: 'var(--radius-xl)', marginBottom: '32px',
+                            maxWidth: '500px', width: '100%', animation: 'celebrate 1s ease-out infinite alternate',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px' }}>
+                                <Gift size={32} color="var(--primary)" />
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-dark)' }}>You Earned a Reward! 🎁</h3>
+                            </div>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--text)', marginBottom: '16px' }}>
+                                Congratulations! your order qualified for a mystery scratch card. Go to your rewards section to reveal your discount.
+                            </p>
+                            <Link href="/rewards" style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                background: 'var(--primary)', color: 'white', padding: '10px 24px',
+                                borderRadius: 'var(--radius-md)', textDecoration: 'none', fontWeight: 600,
+                                fontSize: '0.9rem', boxShadow: 'var(--shadow-md)',
+                            }}>
+                                <Sparkles size={16} /> Go to My Rewards
+                            </Link>
+                        </div>
+                    )}
+
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <Link href={`/track/${orderId}`} className="btn-accent" style={{ gap: '8px' }}>
                             <Truck size={18} /> Track My Order
@@ -216,7 +285,6 @@ export default function CheckoutPage() {
     }
 
     if (items.length === 0 && !orderPlaced) {
-        router.push('/cart');
         return null;
     }
 
@@ -376,6 +444,41 @@ export default function CheckoutPage() {
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: "'Inter', sans-serif", marginBottom: '20px', color: 'var(--primary-dark)' }}>
                                 Order Summary
                             </h3>
+                            {/* Reward Selection */}
+                            {isLoggedIn && availableCoupons.length > 0 && (
+                                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary)' }}>
+                                        <Gift size={16} /> Apply Reward Points
+                                    </h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {availableCoupons.map(coupon => (
+                                            <button
+                                                key={coupon.id}
+                                                type="button"
+                                                onClick={() => handleApplyCoupon(coupon)}
+                                                style={{
+                                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                                    padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid',
+                                                    borderColor: selectedCouponId === coupon.id ? 'var(--primary)' : 'var(--border)',
+                                                    background: selectedCouponId === coupon.id ? 'var(--primary-50)' : 'white',
+                                                    cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                                                }}
+                                            >
+                                                <div>
+                                                    <div style={{ fontSize: '0.82rem', fontWeight: 700 }}>{coupon.code}</div>
+                                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Save ₹{coupon.value}</div>
+                                                </div>
+                                                {selectedCouponId === coupon.id ? (
+                                                    <CheckCircle size={16} color="var(--primary)" />
+                                                ) : (
+                                                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid var(--border)' }} />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
                                 {items.map(item => (
                                     <div key={item.product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem' }}>
@@ -389,6 +492,12 @@ export default function CheckoutPage() {
                                     <span style={{ color: 'var(--text-light)' }}>Subtotal</span>
                                     <span style={{ fontWeight: 600 }}>₹{subtotal}</span>
                                 </div>
+                                {discountAmount > 0 && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--success)' }}>
+                                        <span>Reward Discount</span>
+                                        <span style={{ fontWeight: 600 }}>-₹{discountAmount}</span>
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                                     <span style={{ color: 'var(--text-light)' }}>Delivery</span>
                                     <span style={{ fontWeight: 600, color: deliveryFee === 0 ? 'var(--success)' : 'inherit' }}>
@@ -398,14 +507,14 @@ export default function CheckoutPage() {
                             </div>
                             <div style={{ borderTop: '2px solid var(--border)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
                                 <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>Total</span>
-                                <span style={{ fontWeight: 700, fontSize: '1.3rem', color: 'var(--primary)' }}>₹{total}</span>
+                                <span style={{ fontWeight: 700, fontSize: '1.3rem', color: 'var(--primary)' }}>₹{finalTotal}</span>
                             </div>
                             <button type="submit" className="btn-primary" disabled={loading} style={{
                                 width: '100%', padding: '16px', fontSize: '1rem',
                                 justifyContent: 'center', opacity: loading ? 0.7 : 1,
                                 cursor: loading ? 'not-allowed' : 'pointer',
                             }}>
-                                {loading ? 'Processing...' : <><Lock size={16} /> Pay ₹{total}</>}
+                                {loading ? 'Processing...' : <><Lock size={16} /> Pay ₹{finalTotal}</>}
                             </button>
                             <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '12px' }}>
                                 🔒 Your payment information is encrypted and secure
@@ -420,6 +529,10 @@ export default function CheckoutPage() {
                     .checkout-grid { grid-template-columns: 1fr !important; }
                     .form-grid { grid-template-columns: 1fr !important; }
                     .form-full { grid-column: span 1 !important; }
+                }
+                @keyframes celebrate {
+                    from { transform: scale(1); }
+                    to { transform: scale(1.02); }
                 }
             `}</style>
         </div>

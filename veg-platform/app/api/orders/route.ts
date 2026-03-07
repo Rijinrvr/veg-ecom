@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrders, createOrder, updateOrder } from '@/lib/db';
+import { getOrders, createOrder, updateOrder, createCoupon, updateCoupon } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
-import { Order } from '@/types';
+import { Order, Coupon } from '@/types';
 
 export async function GET() {
     try {
@@ -19,9 +19,11 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const order: Order = {
             id: `ORD-${Date.now().toString(36).toUpperCase()}`,
+            userId: body.userId,
             items: body.items,
             total: body.total,
             subtotal: body.subtotal,
+            discount: body.discount || 0,
             deliveryFee: body.deliveryFee || 0,
             customerName: body.customerName,
             customerEmail: body.customerEmail,
@@ -30,14 +32,39 @@ export async function POST(request: NextRequest) {
             city: body.city,
             pincode: body.pincode,
             paymentId: body.paymentId || '',
-            paymentStatus: body.paymentStatus || 'pending',
+            paymentStatus: body.paymentStatus || 'completed',
             orderStatus: 'placed',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
         createOrder(order);
-        return NextResponse.json(order, { status: 201 });
+
+        // Mark coupon as used if applied
+        if (body.selectedCouponId) {
+            updateCoupon(body.selectedCouponId, { isUsed: true });
+        }
+
+        let rewardEarned = false;
+        // Generate a reward coupon if userId exists AND subtotal >= 100
+        if (body.userId && body.subtotal >= 100) {
+            rewardEarned = true;
+            const couponValue = Math.floor(Math.random() * 46) + 5; // Random value between 5 and 50
+            const coupon: Coupon = {
+                id: `CPN-${uuidv4().substring(0, 8).toUpperCase()}`,
+                userId: body.userId,
+                code: `VEG${uuidv4().substring(0, 4).toUpperCase()}`,
+                value: couponValue,
+                isScratched: false,
+                isUsed: false,
+                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+                createdAt: new Date().toISOString(),
+            };
+            createCoupon(coupon);
+        }
+
+        return NextResponse.json({ ...order, rewardEarned }, { status: 201 });
     } catch (error) {
+        console.error('Order creation error:', error);
         return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
     }
 }

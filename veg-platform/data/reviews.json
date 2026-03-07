@@ -1,0 +1,41 @@
+[
+  {
+    "id": "rev-1",
+    "productId": "prod-1",
+    "userId": "user-c6c99df1",
+    "userName": "Rijin V Reji",
+    "userImage": "/images/testimonial-1.png",
+    "rating": 5,
+    "comment": "Extremely fresh spinach! It lasted for almost a week in my fridge. Highly recommended for daily salads.",
+    "images": [
+      "/images/spinach.svg"
+    ],
+    "videos": [],
+    "createdAt": "2026-03-01T10:00:00.000Z"
+  },
+  {
+    "id": "rev-2",
+    "productId": "prod-1",
+    "userId": "user-0016b084",
+    "userName": "Akash",
+    "userImage": "/images/testimonial-3.png",
+    "rating": 4,
+    "comment": "Good quality, but the bunch was slightly smaller than expected. Still very fresh though.",
+    "images": [],
+    "videos": [],
+    "createdAt": "2026-03-02T14:30:00.000Z"
+  },
+  {
+    "id": "rev-553213df",
+    "userId": "user-c6c99df1",
+    "userName": "Rijin V Reji",
+    "userImage": "/images/testimonial-1.png",
+    "rating": 3,
+    "comment": "wounder full product",
+    "images": [
+      "/images/spinach.svg"
+    ],
+    "videos": [],
+    "createdAt": "2026-03-07T06:29:57.897Z"
+  }
+]

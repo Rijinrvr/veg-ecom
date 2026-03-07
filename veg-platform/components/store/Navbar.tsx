@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Search, Menu, X, Leaf, User, LogOut, Package, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, Leaf, User, LogOut, Package, ChevronDown, Gift } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectItemCount } from '@/store/slices/cartSlice';
 import { selectUser, selectIsLoggedIn, logoutUser } from '@/store/slices/userSlice';
@@ -113,6 +113,13 @@ export default function Navbar() {
                                             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-50)'; }}
                                             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                                         ><Package size={16} /> My Orders</Link>
+                                        <Link href="/rewards" onClick={() => setShowUserMenu(false)} style={{
+                                            display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px',
+                                            textDecoration: 'none', color: 'var(--text)', fontSize: '0.88rem', transition: 'background 0.15s',
+                                        }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-50)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                        ><Gift size={16} /> My Rewards</Link>
                                         <Link href="/admin/login" onClick={() => setShowUserMenu(false)} style={{
                                             display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px',
                                             textDecoration: 'none', color: 'var(--text)', fontSize: '0.88rem', transition: 'background 0.15s',

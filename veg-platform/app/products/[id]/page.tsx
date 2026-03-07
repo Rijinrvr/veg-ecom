@@ -6,20 +6,34 @@ import Link from 'next/link';
 import Navbar from '@/components/store/Navbar';
 import Footer from '@/components/store/Footer';
 import { Product } from '@/types';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { addToCart } from '@/store/slices/cartSlice';
-import { Star, ShoppingCart, Minus, Plus, ArrowLeft, Truck, Shield, RefreshCw, Leaf } from 'lucide-react';
+import { selectUser, selectIsLoggedIn } from '@/store/slices/userSlice';
+import { Star, ShoppingCart, Minus, Plus, ArrowLeft, Truck, Shield, RefreshCw, Leaf, Camera, Video, Send, CheckCircle } from 'lucide-react';
+import { Review } from '@/types';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const [product, setProduct] = useState<Product | null>(null);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
     const [addedToCart, setAddedToCart] = useState(false);
+    
+    // Review form state
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+    const [submittingReview, setSubmittingReview] = useState(false);
+    const [reviewSubmitted, setReviewSubmitted] = useState(false);
+    
     const dispatch = useAppDispatch();
+    const user = useAppSelector(selectUser);
+    const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
     useEffect(() => {
         fetchProduct();
+        fetchReviews();
     }, [id]);
 
     const fetchProduct = async () => {
@@ -36,6 +50,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         }
     };
 
+    const fetchReviews = async () => {
+        try {
+            const res = await fetch(`/api/products/${id}/reviews`);
+            if (res.ok) {
+                const data = await res.json();
+                setReviews(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch reviews', error);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
     const handleAddToCart = () => {
         if (product) {
             for (let i = 0; i < quantity; i++) {
@@ -45,6 +73,45 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             setTimeout(() => setAddedToCart(false), 2000);
         }
     };
+
+    const handleReviewSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!isLoggedIn || !user) {
+            alert('Please sign in to submit a review');
+            return;
+        }
+
+        setSubmittingReview(true);
+        try {
+            const res = await fetch(`/api/products/${id}/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.id,
+                    userName: user.name,
+                    userImage: '/images/testimonial-1.png',
+                    rating,
+                    comment,
+                    images: product ? [product.image] : [], // Mockup image
+                    videos: []
+                })
+            });
+
+            if (res.ok) {
+                setReviewSubmitted(true);
+                setComment('');
+                setRating(5);
+                fetchReviews();
+                fetchProduct(); // Refresh product rating/reviews count
+                setTimeout(() => setReviewSubmitted(false), 5000);
+            }
+        } catch (error) {
+            console.error('Failed to submit review', error);
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -384,7 +451,140 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         </div>
                     </div>
                 </div>
+                <div style={{ marginTop: '80px', paddingTop: '60px', borderTop: '1px solid var(--border)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '60px' }} className="reviews-grid">
+                        {/* Review List */}
+                        <div>
+                            <h2 style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--primary-dark)', marginBottom: '32px' }}>
+                                Customer Reviews ({reviews.length})
+                            </h2>
+                            
+                            {reviewsLoading ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    {[1, 2].map(i => (
+                                        <div key={i} className="skeleton" style={{ height: '120px', borderRadius: 'var(--radius-lg)' }} />
+                                    ))}
+                                </div>
+                            ) : reviews.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '40px', background: 'var(--primary-50)', borderRadius: 'var(--radius-lg)' }}>
+                                    <p style={{ color: 'var(--text-muted)' }}>No reviews yet. Be the first to review this product!</p>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                    {reviews.map((review) => (
+                                        <div key={review.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: '32px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden' }}>
+                                                        <Image src={review.userImage || '/images/testimonial-1.png'} alt={review.userName} width={40} height={40} />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{review.userName}</div>
+                                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '2px' }}>
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            size={16}
+                                                            fill={i < review.rating ? '#f59e0b' : '#e5e7eb'}
+                                                            color={i < review.rating ? '#f59e0b' : '#e5e7eb'}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p style={{ color: 'var(--text-light)', lineHeight: 1.6, marginBottom: '16px' }}>{review.comment}</p>
+                                            
+                                            {/* Review Media */}
+                                            {(review.images?.length > 0 || review.videos?.length > 0) && (
+                                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                                    {review.images.map((img, i) => (
+                                                        <div key={i} style={{ width: '100px', height: '100px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                                            <Image src={img} alt="review" width={100} height={100} style={{ objectFit: 'cover' }} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Review Form */}
+                        <div>
+                            <div style={{ background: 'white', padding: '36px', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', position: 'sticky', top: '100px' }}>
+                                <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '24px', color: 'var(--primary-dark)' }}>
+                                    Add a Review
+                                </h3>
+
+                                {reviewSubmitted ? (
+                                    <div style={{ textAlign: 'center', padding: '20px' }} className="animate-fadeInUp">
+                                        <CheckCircle size={48} color="var(--success)" style={{ margin: '0 auto 16px' }} />
+                                        <p style={{ fontWeight: 600, color: 'var(--text)' }}>Thank you for your review!</p>
+                                        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Your feedback helps other customers make better choices.</p>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleReviewSubmit}>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, marginBottom: '12px' }}>Your Rating</label>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <button
+                                                        key={star}
+                                                        type="button"
+                                                        onClick={() => setRating(star)}
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                                    >
+                                                        <Star size={32} fill={star <= rating ? '#f59e0b' : 'none'} color={star <= rating ? '#f59e0b' : '#e5e7eb'} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div style={{ marginBottom: '24px' }}>
+                                            <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, marginBottom: '12px' }}>Your Review</label>
+                                            <textarea
+                                                className="input"
+                                                rows={4}
+                                                placeholder="What did you like or dislike? How was the freshness?"
+                                                value={comment}
+                                                onChange={(e) => setComment(e.target.value)}
+                                                required
+                                                style={{ resize: 'none' }}
+                                            />
+                                        </div>
+
+                                        {/* File Upload placeholders */}
+                                        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                                            <div style={{ flex: 1, padding: '16px', border: '2px dashed var(--border)', borderRadius: 'var(--radius-md)', textAlign: 'center', cursor: 'pointer' }}>
+                                                <Camera size={24} color="var(--text-muted)" style={{ margin: '0 auto 8px' }} />
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Add Photos</div>
+                                            </div>
+                                            <div style={{ flex: 1, padding: '16px', border: '2px dashed var(--border)', borderRadius: 'var(--radius-md)', textAlign: 'center', cursor: 'pointer' }}>
+                                                <Video size={24} color="var(--text-muted)" style={{ margin: '0 auto 8px' }} />
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Add Video</div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className="btn-primary"
+                                            disabled={submittingReview || !isLoggedIn}
+                                            style={{ width: '100%', padding: '14px', justifyContent: 'center' }}
+                                        >
+                                            {submittingReview ? 'Submitting...' : isLoggedIn ? 'Submit Review' : 'Sign in to Review'}
+                                            {!submittingReview && <Send size={18} />}
+                                        </button>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
+
 
             {/* Toast notification */}
             {addedToCart && (
@@ -402,6 +602,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             gap: 30px !important;
           }
           .features-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .reviews-grid {
             grid-template-columns: 1fr !important;
           }
         }

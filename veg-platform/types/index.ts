@@ -46,7 +46,9 @@ export interface Order {
     items: CartItem[];
     total: number;
     subtotal: number;
+    discount: number;
     deliveryFee: number;
+    rewardEarned?: boolean;
     customerName: string;
     customerEmail: string;
     customerPhone: string;
@@ -63,5 +65,29 @@ export interface Order {
 export interface AdminUser {
     username: string;
     password: string;
+}
+
+export interface Review {
+    id: string;
+    productId: string;
+    userId: string;
+    userName: string;
+    userImage?: string;
+    rating: number;
+    comment: string;
+    images: string[];
+    videos: string[];
+    createdAt: string;
+}
+
+export interface Coupon {
+    id: string;
+    userId: string;
+    code: string;
+    value: number; // Discount amount in ₹
+    isScratched: boolean;
+    isUsed: boolean;
+    expiryDate: string;
+    createdAt: string;
 }
 
