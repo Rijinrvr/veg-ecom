@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { StoreProvider } from '@/store/provider';
+import ChatBot from '@/components/store/ChatBot';
 
 export const metadata: Metadata = {
   title: 'VegFresh - Farm Fresh Vegetables Delivered Daily',
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body>
         <StoreProvider>
           {children}
+          <ChatBot />
         </StoreProvider>
       </body>
     </html>

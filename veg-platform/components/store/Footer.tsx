@@ -36,6 +36,7 @@ export default function Footer() {
                         justifyContent: 'center',
                     }}>
                         <input
+                            suppressHydrationWarning
                             type="email"
                             placeholder="Enter your email"
                             style={{
@@ -48,7 +49,7 @@ export default function Footer() {
                                 outline: 'none',
                             }}
                         />
-                        <button className="btn-accent" style={{ whiteSpace: 'nowrap' }}>Subscribe</button>
+                        <button suppressHydrationWarning className="btn-accent" style={{ whiteSpace: 'nowrap' }}>Subscribe</button>
                     </div>
                 </div>
             </div>
