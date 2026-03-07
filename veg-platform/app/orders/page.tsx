@@ -8,7 +8,7 @@ import Footer from '@/components/store/Footer';
 import { useAppSelector } from '@/store/hooks';
 import { selectUser, selectIsLoggedIn } from '@/store/slices/userSlice';
 import { Order } from '@/types';
-import { Package, Clock, ChevronDown, ChevronUp, MapPin, Truck, ShoppingBag } from 'lucide-react';
+import { Package, Clock, ChevronDown, ChevronUp, MapPin, Truck, ShoppingBag, Gift } from 'lucide-react';
 
 const statusConfig: Record<string, { bg: string; color: string; icon: string; label: string }> = {
   placed: { bg: '#dbeafe', color: '#1e40af', icon: '📦', label: 'Order Placed' },
@@ -189,12 +189,23 @@ export default function OrdersPage() {
                           {status.icon} {status.label}
                         </span>
                         {/* Amount */}
-                        <span style={{
-                          fontWeight: 700, color: 'var(--primary)',
-                          fontSize: '1.1rem', fontFamily: "'Inter', sans-serif",
-                        }}>
-                          ₹{order.total}
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          <span style={{
+                            fontWeight: 700, color: 'var(--primary)',
+                            fontSize: '1.2rem', fontFamily: "'Inter', sans-serif",
+                          }}>
+                            ₹{order.total}
+                          </span>
+                          {order.discount > 0 && (
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: '4px',
+                              fontSize: '0.72rem', color: 'var(--success)', fontWeight: 600,
+                              background: '#ecfdf5', padding: '2px 8px', borderRadius: '4px',
+                            }}>
+                              <Gift size={11} /> -₹{order.discount} {order.couponCode && `(${order.couponCode})`}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 

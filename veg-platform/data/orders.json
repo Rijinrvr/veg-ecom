@@ -728,5 +728,90 @@
     "orderStatus": "placed",
     "createdAt": "2026-03-07T06:52:41.707Z",
     "updatedAt": "2026-03-07T06:52:41.707Z"
+  },
+  {
+    "id": "ORD-MMFZ4ACJ",
+    "userId": "user-c6c99df1",
+    "items": [
+      {
+        "product": {
+          "id": "prod-8",
+          "name": "Potato",
+          "slug": "potato",
+          "description": "Fresh and firm potatoes, a kitchen staple. Versatile vegetable perfect for curries, fries, mashed dishes, and more.",
+          "price": 28,
+          "originalPrice": 35,
+          "unit": "kg",
+          "image": "/images/potato.svg",
+          "category": "Root Vegetables",
+          "stock": 300,
+          "isOrganic": false,
+          "isFeatured": true,
+          "rating": 4.5,
+          "reviews": 210,
+          "createdAt": "2026-01-01T00:00:00Z",
+          "updatedAt": "2026-01-01T00:00:00Z"
+        },
+        "quantity": 4
+      }
+    ],
+    "total": 152,
+    "subtotal": 112,
+    "discount": 0,
+    "deliveryFee": 40,
+    "customerName": "Rijin V Reji",
+    "customerEmail": "rijin@gmail.com",
+    "customerPhone": "9061788964",
+    "address": "Rijin Bhavan",
+    "city": "Valakom",
+    "pincode": "691532",
+    "paymentId": "pay_1772866800596_6u0y35",
+    "paymentStatus": "completed",
+    "orderStatus": "placed",
+    "createdAt": "2026-03-07T07:00:00.739Z",
+    "updatedAt": "2026-03-07T07:00:00.739Z"
+  },
+  {
+    "id": "ORD-MMFZ6QHW",
+    "userId": "user-c6c99df1",
+    "items": [
+      {
+        "product": {
+          "id": "prod-12",
+          "name": "Bitter Gourd",
+          "slug": "bitter-gourd",
+          "description": "Fresh karela/bitter gourd, known for its health benefits. Rich in vitamins and great for managing blood sugar.",
+          "price": 38,
+          "originalPrice": 48,
+          "unit": "kg",
+          "image": "/images/bittergourd.svg",
+          "category": "Gourds & Squash",
+          "stock": 40,
+          "isOrganic": true,
+          "isFeatured": false,
+          "rating": 4.2,
+          "reviews": 34,
+          "createdAt": "2026-01-01T00:00:00Z",
+          "updatedAt": "2026-01-01T00:00:00Z"
+        },
+        "quantity": 5
+      }
+    ],
+    "total": 202,
+    "subtotal": 190,
+    "discount": 28,
+    "couponCode": "VEG012E",
+    "deliveryFee": 40,
+    "customerName": "Rijin V Reji",
+    "customerEmail": "rijin@gmail.com",
+    "customerPhone": "9061788964",
+    "address": "Rijin Bhavan",
+    "city": "Valakom",
+    "pincode": "691532",
+    "paymentId": "pay_1772866914950_ac1a74",
+    "paymentStatus": "completed",
+    "orderStatus": "placed",
+    "createdAt": "2026-03-07T07:01:54.980Z",
+    "updatedAt": "2026-03-07T07:01:54.980Z"
   }
 ]

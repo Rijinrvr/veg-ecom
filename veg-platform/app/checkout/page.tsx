@@ -189,13 +189,14 @@ export default function CheckoutPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         items: items.map(item => ({ product: item.product, quantity: item.quantity })),
-                        total: finalTotal, 
-                        subtotal, 
+                        total: finalTotal,
+                        subtotal,
                         discount: discountAmount,
                         deliveryFee,
                         ...form,
                         userId: user?.id || undefined,
                         selectedCouponId,
+                        couponCode: availableCoupons.find(c => c.id === selectedCouponId)?.code,
                         paymentId, paymentStatus: 'completed',
                     }),
                 });

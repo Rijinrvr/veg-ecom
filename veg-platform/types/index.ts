@@ -47,6 +47,7 @@ export interface Order {
     total: number;
     subtotal: number;
     discount: number;
+    couponCode?: string;
     deliveryFee: number;
     rewardEarned?: boolean;
     customerName: string;

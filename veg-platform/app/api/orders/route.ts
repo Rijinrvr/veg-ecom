@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
             total: body.total,
             subtotal: body.subtotal,
             discount: body.discount || 0,
+            couponCode: body.couponCode,
             deliveryFee: body.deliveryFee || 0,
             customerName: body.customerName,
             customerEmail: body.customerEmail,

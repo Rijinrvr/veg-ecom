@@ -34,9 +34,29 @@
     "userId": "user-c6c99df1",
     "code": "VEG012E",
     "value": 28,
-    "isScratched": false,
-    "isUsed": false,
+    "isScratched": true,
+    "isUsed": true,
     "expiryDate": "2026-04-06T06:51:05.376Z",
     "createdAt": "2026-03-07T06:51:05.376Z"
+  },
+  {
+    "id": "CPN-F4FCCC4C",
+    "userId": "user-c6c99df1",
+    "code": "VEGD86C",
+    "value": 50,
+    "isScratched": false,
+    "isUsed": false,
+    "expiryDate": "2026-04-06T07:00:00.742Z",
+    "createdAt": "2026-03-07T07:00:00.742Z"
+  },
+  {
+    "id": "CPN-B4331078",
+    "userId": "user-c6c99df1",
+    "code": "VEG4DD4",
+    "value": 47,
+    "isScratched": false,
+    "isUsed": false,
+    "expiryDate": "2026-04-06T07:01:54.983Z",
+    "createdAt": "2026-03-07T07:01:54.983Z"
   }
 ]
